@@ -1,5 +1,7 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
+app.use(cors());
 
 const menu = {
   icecream: [
@@ -32,12 +34,19 @@ app.get("/", (req, res) => {
 app.get("/icecream", (req, res) => {
   const { minPrice, maxPrice } = req.query;
   console.log({ minPrice, maxPrice });
-  const filterdMenu = menu.icecream.filter(
-    (v) => minPrice <= v.price && v.price <= maxPrice
-  );
-  res.json(filterdMenu);
+  if (!minPrice && !maxPrice) res.json(menu.icecream);
+  else if (!maxPrice)
+    res.json(menu.icecream.filter((v) => v.price >= minPrice));
+  else if (!minPrice)
+    res.json(menu.icecream.filter((v) => v.price <= maxPrice));
+  else
+    res.json(
+      menu.icecream.filter((v) => v.price >= minPrice && v.price <= maxPrice)
+    );
 });
 app.get("/cake", (req, res) => {
+  const { name } = req.query;
+  res.json(menu.cake.filter((v) => v.name.includes(name)));
   res.json(menu.cake);
 });
 app.get("/coffee", (req, res) => {
